@@ -1,0 +1,62 @@
+version: 2
+
+jobs:
+  build:
+    machine: true
+    docker:
+      - image: circleci/terrorjack/asterius
+    steps:
+      - checkout
+      - run:
+          name: compile
+          command: |
+            git clone https://github.com/raoofha/wasm-pandoc
+            cd wasm-pandoc
+            BUILD_DIR=_build
+            AHC_CABAL_BUILD_DIR=$(BUILD_DIR)/ahc-cabal
+            AHC_CABAL_INSTALL_DIR=$(BUILD_DIR)
+            ASTERIUS_OUTPUT_DIR=$(BUILD_DIR)/asterius
+            ahc-cabal install --builddir $(AHC_CABAL_BUILD_DIR) --installdir $(AHC_CABAL_INSTALL_DIR) --install-method copy --overwrite-policy always
+
+            mkdir -p $(ASTERIUS_OUTPUT_DIR)
+            docker run --rm -v $(CURDIR):$(DOCKER_WS) -w $(DOCKER_WS) $(DOCKER_IMAGE) \
+              ahc-dist \
+                --input-exe $(AHC_CABAL_INSTALL_DIR)/wasm-pandoc \
+                --output-directory $(ASTERIUS_OUTPUT_DIR) \
+                --input-mjs static/index.mjs --no-main --browser \
+                --gc-threshold 640
+
+            npm install
+	          ASTERIUS_OUTPUT_DIR=$(ASTERIUS_OUTPUT_DIR) npm run build
+
+            cd docs
+            FILES=`find .`
+            mkdir -p /tmp/workspace/out
+            cd /tmp/workspace/out
+            tar cvJf wasm-pandoc-$CIRCLE_TAG.tar.xz -C ~/project/wasm-pandoc/docs -T <(echo $FILES)
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - out/*
+
+  release:
+    docker:
+      - image: circleci/golang:1.9
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - checkout
+      - run:
+          name: add body and tars to github release
+          command: |
+            go get -u github.com/tcnksm/ghr
+            ghr -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME -b "$CIRCLE_PROJECT_REPONAME $CIRCLE_TAG" --replace $CIRCLE_TAG /tmp/workspace/out
+
+workflows:
+  version: 2
+  build-test-release:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*/
