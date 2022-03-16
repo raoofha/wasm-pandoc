@@ -1,0 +1,40 @@
+
+name: build actions
+on: [push]
+jobs:
+  Explore-GitHub-Actions:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          git clone https://github.com/raoofha/wasm-pandoc
+          cd wasm-pandoc
+          BUILD_DIR=_build
+          AHC_CABAL_BUILD_DIR=$(BUILD_DIR)/ahc-cabal
+          AHC_CABAL_INSTALL_DIR=$(BUILD_DIR)
+          ASTERIUS_OUTPUT_DIR=$(BUILD_DIR)/asterius
+
+          docker run --rm -v $(CURDIR):$(DOCKER_WS) -w $(DOCKER_WS) $(DOCKER_IMAGE) \
+            ahc-cabal install \
+              --builddir $(AHC_CABAL_BUILD_DIR) --installdir $(AHC_CABAL_INSTALL_DIR) \
+              --install-method copy --overwrite-policy always
+
+          mkdir -p $(ASTERIUS_OUTPUT_DIR)
+          docker run --rm -v $(CURDIR):$(DOCKER_WS) -w $(DOCKER_WS) $(DOCKER_IMAGE) \
+            ahc-dist \
+              --input-exe $(AHC_CABAL_INSTALL_DIR)/wasm-pandoc \
+              --output-directory $(ASTERIUS_OUTPUT_DIR) \
+              --input-mjs static/index.mjs --no-main --browser \
+              --gc-threshold 640
+
+          npm install
+          ASTERIUS_OUTPUT_DIR=$(ASTERIUS_OUTPUT_DIR) npm run build
+
+          cd docs
+          FILES=`find .`
+          mkdir -p /tmp/workspace/out
+          cd /tmp/workspace/out
+          tar cvJf wasm-pandoc.tar.xz -C ~/project/wasm-pandoc/docs -T <(echo $FILES)
+      - name: Archive
+        uses: actions/upload-artifact@v3
+        with:
+          path: /tmp/workspace/out/wasm-pandoc.tar.xz
