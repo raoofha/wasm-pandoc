@@ -6,8 +6,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          git clone https://github.com/raoofha/wasm-pandoc
-          cd wasm-pandoc
+          #git clone https://github.com/raoofha/wasm-pandoc
+          #cd wasm-pandoc
           export DOCKER_IMAGE=terrorjack/asterius
           export DOCKER_WS=/workspace
           export BUILD_DIR=$PWD/_build
