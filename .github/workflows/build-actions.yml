@@ -8,10 +8,10 @@ jobs:
       - run: |
           git clone https://github.com/raoofha/wasm-pandoc
           cd wasm-pandoc
-          BUILD_DIR=_build
-          AHC_CABAL_BUILD_DIR=$(BUILD_DIR)/ahc-cabal
-          AHC_CABAL_INSTALL_DIR=$(BUILD_DIR)
-          ASTERIUS_OUTPUT_DIR=$(BUILD_DIR)/asterius
+          export BUILD_DIR=_build
+          export AHC_CABAL_BUILD_DIR=$(BUILD_DIR)/ahc-cabal
+          export AHC_CABAL_INSTALL_DIR=$(BUILD_DIR)
+          export ASTERIUS_OUTPUT_DIR=$(BUILD_DIR)/asterius
 
           docker run --rm -v $(CURDIR):$(DOCKER_WS) -w $(DOCKER_WS) $(DOCKER_IMAGE) \
             ahc-cabal install \
