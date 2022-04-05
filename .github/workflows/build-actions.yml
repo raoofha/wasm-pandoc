@@ -8,8 +8,8 @@ jobs:
       - run: |
           git clone https://github.com/raoofha/wasm-pandoc
           cd wasm-pandoc
-          export DOCKER_IMAGE := terrorjack/asterius
-          export DOCKER_WS := /workspace
+          export DOCKER_IMAGE=terrorjack/asterius
+          export DOCKER_WS=/workspace
           export BUILD_DIR=$PWD/_build
           export AHC_CABAL_BUILD_DIR=$BUILD_DIR/ahc-cabal
           export AHC_CABAL_INSTALL_DIR=$BUILD_DIR
