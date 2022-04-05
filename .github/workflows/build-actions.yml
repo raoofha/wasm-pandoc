@@ -9,25 +9,25 @@ jobs:
           git clone https://github.com/raoofha/wasm-pandoc
           cd wasm-pandoc
           export BUILD_DIR=_build
-          export AHC_CABAL_BUILD_DIR=$(BUILD_DIR)/ahc-cabal
-          export AHC_CABAL_INSTALL_DIR=$(BUILD_DIR)
-          export ASTERIUS_OUTPUT_DIR=$(BUILD_DIR)/asterius
+          export AHC_CABAL_BUILD_DIR=$BUILD_DIR/ahc-cabal
+          export AHC_CABAL_INSTALL_DIR=$BUILD_DIR
+          export ASTERIUS_OUTPUT_DIR=$BUILD_DIR/asterius
 
-          docker run --rm -v $(CURDIR):$(DOCKER_WS) -w $(DOCKER_WS) $(DOCKER_IMAGE) \
+          docker run --rm -v $CURDIR:$DOCKER_WS -w $DOCKER_WS $DOCKER_IMAGE \
             ahc-cabal install \
-              --builddir $(AHC_CABAL_BUILD_DIR) --installdir $(AHC_CABAL_INSTALL_DIR) \
+              --builddir $AHC_CABAL_BUILD_DIR --installdir $AHC_CABAL_INSTALL_DIR \
               --install-method copy --overwrite-policy always
 
-          mkdir -p $(ASTERIUS_OUTPUT_DIR)
-          docker run --rm -v $(CURDIR):$(DOCKER_WS) -w $(DOCKER_WS) $(DOCKER_IMAGE) \
+          mkdir -p $ASTERIUS_OUTPUT_DIR
+          docker run --rm -v $CURDIR:$DOCKER_WS -w $DOCKER_WS $DOCKER_IMAGE \
             ahc-dist \
-              --input-exe $(AHC_CABAL_INSTALL_DIR)/wasm-pandoc \
-              --output-directory $(ASTERIUS_OUTPUT_DIR) \
+              --input-exe $AHC_CABAL_INSTALL_DIR/wasm-pandoc \
+              --output-directory $ASTERIUS_OUTPUT_DIR \
               --input-mjs static/index.mjs --no-main --browser \
               --gc-threshold 640
 
           npm install
-          ASTERIUS_OUTPUT_DIR=$(ASTERIUS_OUTPUT_DIR) npm run build
+          ASTERIUS_OUTPUT_DIR=$ASTERIUS_OUTPUT_DIR npm run build
 
           cd docs
           FILES=`find .`
