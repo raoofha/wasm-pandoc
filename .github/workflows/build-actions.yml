@@ -8,7 +8,7 @@ jobs:
       - run: |
           git clone https://github.com/raoofha/wasm-pandoc
           cd wasm-pandoc
-          export BUILD_DIR=_build
+          export BUILD_DIR=$PWD/_build
           export AHC_CABAL_BUILD_DIR=$BUILD_DIR/ahc-cabal
           export AHC_CABAL_INSTALL_DIR=$BUILD_DIR
           export ASTERIUS_OUTPUT_DIR=$BUILD_DIR/asterius
