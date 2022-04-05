@@ -12,7 +12,7 @@ jobs:
           export AHC_CABAL_BUILD_DIR=$BUILD_DIR/ahc-cabal
           export AHC_CABAL_INSTALL_DIR=$BUILD_DIR
           export ASTERIUS_OUTPUT_DIR=$BUILD_DIR/asterius
-
+          echo `ls $PWD`
           docker run --rm -v $PWD:$DOCKER_WS -w $DOCKER_WS $DOCKER_IMAGE \
             ahc-cabal install \
               --builddir $AHC_CABAL_BUILD_DIR --installdir $AHC_CABAL_INSTALL_DIR \
